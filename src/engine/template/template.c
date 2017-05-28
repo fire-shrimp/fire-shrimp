@@ -1,19 +1,19 @@
 
-#include "template.h"
 #include "file-system.h"
 #include "file.h"
+#include "template.h"
 #include "mem.h"
 #include "char-buf.h"
-#include "logger.h"
+#include "log.h"
 #include "macros.h"
 
-static void parse_game_template_file(char *buf, struct char_buf *path, struct game_template *template, struct file_stats *file);
-static void parse_property_template_file(char *buf, struct char_buf *path, struct property_template *template, struct file_stats *file);
-static void parse_entity_template_file(char *buf, struct char_buf *path, struct entity_template *template, struct file_stats *file);
+static void parse_game_template_file(char *buf, char_buf *path, game_template *template, file_stats *file);
+static void parse_property_template_file(char *buf, char_buf *path, property_template *template, file_stats *file);
+static void parse_entity_template_file(char *buf, char_buf *path, entity_template *template, file_stats *file);
 
-bool load_template_set_from_directory(struct template_set *templates, struct char_buf *path)
+bool load_template(template_set *templates, char_buf *path)
 {
-	struct directory_stats dir = {};
+	directory_stats dir = {};
 
 	bool success = open_directory(&dir, path);
 
@@ -35,9 +35,9 @@ bool load_template_set_from_directory(struct template_set *templates, struct cha
 			templates->num_entity_templates++;
 	}
 
-	templates->game_templates = MALLOC_HEAP(sizeof(struct game_template) * templates->num_game_templates, 0, "game templates");
-	templates->property_templates = MALLOC_HEAP(sizeof(struct property_template) * templates->num_property_templates, 0, "property templates");
-	templates->entity_templates = MALLOC_HEAP(sizeof(struct entity_template) * templates->num_entity_templates, 0,"entity templates");
+	templates->game_templates = MALLOC_HEAP(sizeof(game_template) * templates->num_game_templates, 0, "game templates");
+	templates->property_templates = MALLOC_HEAP(sizeof(property_template) * templates->num_property_templates, 0, "property templates");
+	templates->entity_templates = MALLOC_HEAP(sizeof(entity_template) * templates->num_entity_templates, 0,"entity templates");
 
 	uint32_t current_game_template = 0;
 	uint32_t current_property_template = 0;
@@ -64,14 +64,14 @@ bool load_template_set_from_directory(struct template_set *templates, struct cha
 	return true;
 }
 
-bool free_template_set(struct template_set *templates)
+bool free_template(template_set *templates)
 {
 	MEM_FREE_HEAP(templates->game_templates);
 	MEM_FREE_HEAP(templates->property_templates);
 	MEM_FREE_HEAP(templates->entity_templates);
 }
 
-static void parse_game_template_file(char *buf, struct char_buf *path, struct game_template *template, struct file_stats *file)
+static void parse_game_template_file(char *buf, char_buf *path, game_template *template, file_stats *file)
 {
 	char file_path_buf[path->size + MAX_FILE_NAME + 1];
 	write_char_buf_format(file_path_buf, path->size + MAX_FILE_NAME + 1, path->size + MAX_FILE_NAME, "%s\\%s", path->buf, file->name);
@@ -83,12 +83,12 @@ static void parse_game_template_file(char *buf, struct char_buf *path, struct ga
 
 }
 
-static void parse_property_template_file(char *buf, struct char_buf *path, struct property_template *template, struct file_stats *file)
+static void parse_property_template_file(char *buf, char_buf *path, property_template *template, file_stats *file)
 {
 
 }
 
-static void parse_entity_template_file(char *buf, struct char_buf *path, struct entity_template *template, struct file_stats *file)
+static void parse_entity_template_file(char *buf, char_buf *path, entity_template *template, file_stats *file)
 {
 
 }

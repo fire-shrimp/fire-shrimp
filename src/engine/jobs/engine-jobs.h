@@ -1,11 +1,11 @@
 
 #pragma once
 
-struct job_scheduler;
-struct job_item;
+typedef struct job_scheduler job_scheduler;
+typedef struct job_item job_item;
 
-void engine_game_logic(struct job_scheduler *scheduler, struct job_item *job);
+void game_routine(job_scheduler *scheduler, job_item *job);
 
-void engine_render_front_end(struct job_scheduler *scheduler, struct job_item *job);
+void render_routine(job_scheduler *scheduler, job_item *job);
 
-void engine_render_back_end(struct job_scheduler *scheduler, struct job_item *job);
+void device_routine(job_scheduler *scheduler, job_item *job);

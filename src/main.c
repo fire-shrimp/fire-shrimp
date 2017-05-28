@@ -1,69 +1,75 @@
-
-
-#include "config.h"
-#include "file-system.h"
-#include "engine-jobs.h"
-#include "job.h"
-#include "job-scheduler.h"
-#include "mem.h"
-#include "logger.h"
-#include "logger-file.h"
-#include "macros.h"
-#include "game.h"
 #include "char-buf.h"
+#include "config.h"
+#include "engine-jobs.h"
+#include "file-system.h"
+#include "game.h"
+#include "job-scheduler.h"
+#include "job.h"
+#include "log-file.h"
+#include "log.h"
+#include "macros.h"
+#include "mem.h"
 
 int main(int argc, char **argv)
 {
-	//allocate all memory
-	MEM_INIT(STATIC_MEM, HEAP_MEM, FRAME_MEM);
+    // allocate all memory
+    MEM_INIT(STATIC_MEM, HEAP_MEM, FRAME_MEM);
 
-	struct char_buf *path = create_char_buf(MAX_FILE_PATH + 1);
+    char_buf *path = create_char_buf(MAX_FILE_PATH + 1);
 
-	//set working directory
-	CHECK(get_path_to_executable(path));
-	CHECK(set_working_directory(path));
+    // set working directory
+    CHECK(get_path_to_executable(path));
+    CHECK(set_working_directory(path));
 
-	//start loggers
-	log_init(DEBUG_LEVEL);
-	log_add_logger(log_file_open_channel, log_file, log_file_close_channel);
+    // start loggers
+    init_log(DEBUG_LEVEL);
 
-	append_char_buf(path->buf, path->size, "\\..\\data");
+    file_log blah = {};
 
-	//load game
-	struct game_data game = {};
-	load_game(&game, path);
+    logger_interface *file_log_interface = &(logger_interface){
+        .open_fn = open_file_log,
+        .write_fn = write_file_log,
+        .close_fn = close_file_log
+    };
 
-	destroy_char_buf(path);
+    add_logger(file_log_interface, &blah);
 
-	//create scheduler
-	struct job_scheduler scheduler = {};
-	scheduler_init(&scheduler, 7);
+    append_char_buf(path->buf, path->size, "\\..\\data");
 
-	for(uint32_t i = 0; i < 10; i++)
-	{
-		//do timing
+    // load game
+    game_data game = {};
+    load_game(&game, path);
 
-		struct job_item *frame_root_job = job_create(0, NULL, NULL, NULL);
+    destroy_char_buf(path);
 
-		struct job_item *game_logic_job = job_create(0, engine_game_logic, frame_root_job, NULL);
-		job_add_continuation(frame_root_job, game_logic_job);
+    // create scheduler
+    job_scheduler scheduler = {};
+    init_scheduler(&scheduler, 7);
 
-		struct job_item *render_front_end_job = job_create(0, engine_render_front_end, frame_root_job, NULL);
-		job_add_continuation(frame_root_job, render_front_end_job);
+    for (uint32_t i = 0; i < 10; i++) {
+        // do timing
 
-		struct job_item *render_back_end_job = job_create(0, engine_render_back_end, frame_root_job, NULL);
-		job_add_continuation(frame_root_job, render_back_end_job);
+        job_item *root_job = create_job(0, NULL, NULL, NULL);
 
-		scheduler_submit(&scheduler, frame_root_job);
-		scheduler_wait(&scheduler, frame_root_job);
-		scheduler_sync(&scheduler);
+        job_item *game_job = create_job(0, game_routine, root_job, NULL);
+        add_continuation(root_job, game_job);
 
-		MEM_FREE_FRAME("end Frame");
-	}
+        job_item *render_job = create_job(0, render_routine, root_job, NULL);
+        add_continuation(root_job, render_job);
 
-	scheduler_join(&scheduler);
-	MEM_DUMP("exit");
-	log_shutdown();
+        job_item *device_job = create_job(0, device_routine, root_job, NULL);
+        add_continuation(root_job, device_job);
 
-	return 0;
+        submit_job(&scheduler, root_job);
+        wait_for_job(&scheduler, root_job);
+        sync_threads(&scheduler);
+
+        MEM_FREE_FRAME("end Frame");
+    }
+
+    join_threads(&scheduler);
+    MEM_DUMP("exit");
+    shutdown_log();
+
+    return 0;
 }

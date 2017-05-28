@@ -2,14 +2,13 @@
 
 #include <stdint.h>
 
+#include "inline-map.h"
 #include "property-schema.h"
-#include "associative-array.h"
 
-struct property
-{
-	void *data;
-	uint32_t capacity, count;
-	size_t stride;
-	struct associative_array index;
-	struct schema *schema;
+struct property {
+    void *data;
+    uint32_t capacity, count;
+    size_t stride;
+    struct inline_map index;
+    struct schema *schema;
 };

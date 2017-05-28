@@ -3,9 +3,7 @@
 
 #include "char-buf.h"
 
-struct game_data
-{
+typedef struct game_data {
+} game_data;
 
-};
-
-void load_game(struct game_data *game, struct char_buf *path);
+void load_game(game_data *game, char_buf *path);

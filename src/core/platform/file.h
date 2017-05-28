@@ -13,4 +13,3 @@ bool load_file(char *path, uint8_t *buf, size_t buf_size);
 void write_file_format(FILE *fp, char *format, ...);
 
 void close_file(FILE *fp);
-
