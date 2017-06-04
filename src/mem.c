@@ -15,10 +15,10 @@ struct mem_buf {
     size_t size;
 };
 
-uint8_t *glb_memory;
 struct mem_buf glb_static_mem;
 struct mem_buf glb_heap_mem;
 struct mem_buf glb_frame_mem;
+uint8_t *glb_memory;
 
 void mem_init(size_t static_sz, size_t heap_sz, size_t frame_sz)
 {

@@ -4,8 +4,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "char-buf.h"
 #include "config.h"
+#include "string-buf.h"
 
 typedef struct file_stats {
     char name[MAX_FILE_NAME + 1];
@@ -18,14 +18,14 @@ typedef struct directory_stats {
     uint32_t num_files;
 } directory_stats;
 
-bool create_path(char_buf *path);
+bool create_path(string_buf *path);
 
-bool get_path_to_executable(char_buf *path);
+bool get_path_to_executable(string_buf *path);
 
-bool get_working_directory(char_buf *path);
+bool get_working_directory(string_buf *path);
 
-bool set_working_directory(char_buf *path);
+bool set_working_directory(string_buf *path);
 
-bool open_directory(directory_stats *dir, char_buf *path);
+bool open_directory(directory_stats *dir, string_buf *path);
 
 void close_directory(directory_stats *dir);

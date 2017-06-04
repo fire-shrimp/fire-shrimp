@@ -23,9 +23,13 @@
 #define MAX_CONTINUATIONS 8
 #define JOB_NAME_SIZE 32
 
-// property config
-#define PROPERTY_NAME_SIZE 64
-#define FIELD_NAME_SIZE 64
+// data config
+#define UTF8_CHAR_SZ 4
+#define MAX_TITLE_LENGTH 128
+#define MAX_AUTHOR_LENGTH 64
+#define MAX_PROPERTY_LENGTH 64
+#define MAX_PORT_LENGTH 32
+#define MAX_FIELD_LENGTH 32
 
 // logging config
 #define MAX_LOGGERS 32

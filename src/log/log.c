@@ -1,20 +1,19 @@
 
 #include <stdarg.h>
 
-#include "char-buf.h"
 #include "config.h"
 #include "log.h"
 #include "macros.h"
+#include "string-util.h"
 #include "thread-id.h"
 #include "tinycthread.h"
 
-typedef struct logger {
-    void *instance;
-    logger_interface *interface;
-} logger;
-
 struct {
-    logger loggers[MAX_LOGGERS];
+    struct {
+        logger_interface *interface;
+        void *instance;
+    } loggers[MAX_LOGGERS];
+
     uint8_t num_loggers;
     enum log_severity severity;
     char buf[MAX_LOG_ENTRY_SIZE + 1];
@@ -64,12 +63,12 @@ void write_log(enum log_severity severity, uint32_t channel_mask, char *format, 
 
         //write entry header
         uint32_t thrd_id = get_thrd_id();
-        int32_t offset = write_char_buf_format(glb_log.buf, dest_sz, count, "[%s][thread id:%d]", "SEV", thrd_id);
+        int32_t offset = write_string_format(glb_log.buf, dest_sz, count, "[%s][thread id:%d]", "SEV", thrd_id);
 
         //write entry to buf
         va_list args;
         va_start(args, format);
-        write_char_buf_args(glb_log.buf + offset, dest_sz, count, format, args);
+        write_string_args(glb_log.buf + offset, dest_sz, count, format, args);
         va_end(args);
 
         //write to loggers

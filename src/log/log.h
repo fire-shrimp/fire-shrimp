@@ -5,10 +5,15 @@
 #include <stdint.h>
 
 #define LOG_FATAL(channel_mask, format, ...) write_log(FATAL_LEVEL, channel_mask, format, __VA_ARGS__)
+
 #define LOG_CRITICAL(channel_mask, format, ...) write_log(CRITICAL_LEVEL, channel_mask, format, __VA_ARGS__)
+
 #define LOG_ERROR(channel_mask, format, ...) write_log(ERROR_LEVEL, channel_mask, format, __VA_ARGS__)
+
 #define LOG_WARN(channel_mask, format, ...) write_log(WARN_LEVEL, channel_mask, format, __VA_ARGS__)
+
 #define LOG_INFO(channel_mask, format, ...) write_log(INFO_LEVEL, channel_mask, format, __VA_ARGS__)
+
 #define LOG_DEBUG(channel_mask, format, ...) write_log(DEBUG_LEVEL, channel_mask, format, __VA_ARGS__)
 
 #define NUM_LOG_CHANNELS (6)

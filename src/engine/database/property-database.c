@@ -1,3 +1,0 @@
-
-
-#include "property-database.h"

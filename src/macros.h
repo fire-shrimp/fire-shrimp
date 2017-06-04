@@ -1,9 +1,12 @@
 #pragma once
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #include "config.h"
 #include "log.h"
+
+#define MAKEFOURCC(ch0, ch1, ch2, ch3) (((uint32_t)(ch0) | ((uint32_t)(ch1) << 8) | ((uint32_t)(ch2) << 16) | ((uint32_t)(ch3) << 24)))
 
 #ifdef ASSERTIONS
 #define ASSERT(condition)                                                                          \
@@ -44,3 +47,4 @@
 #define CHECK(expression) ;
 #define LOG_CHECK(expression, format, ...) ;
 #endif
+
