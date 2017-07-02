@@ -1,13 +1,22 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
-typedef struct game_engine {
-    //log
-    //allocator
+enum log_channel {
+    CORE_LOG = 0,
+    MEMORY_LOG = 1,
+    RENDERER_LOG = 2,
+    ANIMATION_LOG = 3,
+    PHYSICS_LOG = 4,
+    USER_LOG = 5
+};
 
-} game_engine;
+//"sys:boot"
+//"sys:load-level"
+//"sys:load-level"
+//"sys:quit"
 
-extern game_engine engine;
+void raise_event(uint64_t evt_id, void *args, size_t args_sz);
 
-bool init_engine(game_engine *engine);
+void debug_log(enum log_channel channel, const char* format, ...);

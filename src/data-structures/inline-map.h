@@ -20,7 +20,8 @@ typedef struct inline_map {
     uint64_t *buckets;
     uint64_t *keys;
     void *values;
-    uint32_t capacity, count;
+    uint32_t capacity;
+    uint32_t count;
     size_t stride;
 } inline_map;
 
