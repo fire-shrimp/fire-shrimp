@@ -1,6 +1,6 @@
 
 #include "static-handle-array.h"
-#include "macros.h"
+#include "error.h"
 #include "math-util.h"
 #include "mem.h"
 

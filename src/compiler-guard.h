@@ -31,3 +31,4 @@ _Static_assert(sizeof(int64_t) * CHAR_BIT, "64 bit int64_t required");
 _Static_assert(sizeof(float) * CHAR_BIT == 32, "size of float required to be 32 bits");
 
 _Static_assert(sizeof(double) * CHAR_BIT == 64, "size of double required to be 64 bits");
+

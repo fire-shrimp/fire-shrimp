@@ -17,8 +17,9 @@ typedef struct job_batch {
     job_item **jobs;
     uint32_t capacity;
     atomic_int open_jobs;
-    job_batch *continuations[MAX_CONTINUATIONS];
-    atomic_int num_continuations;
+    atomic_int open_batches;
+    job_batch *parent;
+    job_batch *continuation;
 } job_batch;
 
 typedef struct job_item {
@@ -26,10 +27,9 @@ typedef struct job_item {
     uint64_t id;
     job_routine_fn job_fn;
     void *data;
-    //TODO add padding to round to 168 bytes?
 } job_item;
 
-job_batch *create_job_batch(uint32_t capacity);
+job_batch *create_job_batch(uint32_t capacity, job_batch *parent);
 
 void add_job(job_batch *batch, uint64_t id, job_routine_fn job_fn, void *data);
 

@@ -5,6 +5,7 @@
 #define DEBUG_BUILD
 #define ASSERTIONS
 #define ERROR_CHECKS
+#define RESTRICT_UNALIGNED_IO
 
 // file config
 #define MAX_FILE_PATH 4096u
@@ -21,7 +22,6 @@
 #define MAX_WORKER_THREADS 31u
 #define WORKER_THREADS 7u
 #define MAX_JOBS_PER_QUEUE 4096u
-#define MAX_CONTINUATIONS 8u
 #define JOB_NAME_SIZE 32u
 
 //event config
@@ -44,3 +44,6 @@
 
 // debug server
 #define DEFAULT_DEBUG_PORT 31415
+
+//schema config
+#define MAX_SCHEMA_FIELDS 64

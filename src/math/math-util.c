@@ -43,6 +43,11 @@ int64_t i64_round_up_multiple(int64_t x, int64_t mod)
     return x >= 0 ? ((x + mod - 1) / mod) * mod : (x / mod) * mod;
 }
 
+size_t size_t_round_up_multiple(size_t x, size_t mod)
+{
+    return ((x + mod - 1) / mod) * mod;
+}
+
 uint32_t u32_round_down_multiple(uint32_t x, uint32_t mod)
 {
     return (x / mod) * mod;
@@ -61,6 +66,11 @@ uint64_t u64_round_down_multiple(uint64_t x, uint64_t mod)
 int64_t i64_round_down_multiple(int64_t x, int64_t mod)
 {
     return x >= 0 ? (x / mod) * mod : ((x - mod + 1) / mod) * mod;
+}
+
+size_t size_t_round_down_multiple(size_t x, size_t mod)
+{
+    return (x / mod) * mod;
 }
 
 size_t max_size(size_t a, size_t b)

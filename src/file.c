@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 #include "file.h"
-#include "macros.h"
+#include "error.h"
 #include "math-util.h"
 
 bool open_file(FILE **fp, char *path, char *flags)

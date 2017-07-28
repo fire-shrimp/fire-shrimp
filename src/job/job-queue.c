@@ -1,9 +1,9 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "error.h"
 #include "job-queue.h"
 #include "job.h"
-#include "macros.h"
 #include "mem.h"
 
 void init_job_queue(job_queue *queue, uint32_t capacity)
@@ -24,23 +24,16 @@ void reset_job_queue(job_queue *queue)
     queue->top = 0u;
 }
 
-void enqueue_jobs(job_queue *queue, job_item **jobs, uint32_t num_jobs)
+void enqueue_job(job_queue *queue, job_item *job)
 {
     CHECK(mtx_lock(&queue->mutex), "mtx_lock failed");
 
-    uint32_t i = queue->bottom & (queue->capacity-1);
+    uint32_t i = queue->bottom & (queue->capacity - 1);
 
-    ASSERT(i + num_jobs < queue->capacity, "job queue overflow");
+    ASSERT(i < queue->capacity, "job queue overflow %d %d %d", queue->bottom, queue->top, i);
 
-    void *dest = &queue->jobs[i];
-    size_t dest_sz = sizeof(job_item *) * queue->capacity;
-    void *src = jobs;
-    size_t count = sizeof(job_item *) * num_jobs;
-    errno_t err = memcpy_s(dest, dest_sz, src, count);
-
-    CHECK(err == 0, "memcpy_s failed");
-
-    queue->bottom += num_jobs;
+    queue->jobs[i] = job;
+    queue->bottom++;
 
     CHECK(mtx_unlock(&queue->mutex), "mtx_unlock failed");
 }
@@ -49,13 +42,14 @@ job_item *dequeue_job(job_queue *queue)
 {
     CHECK(mtx_lock(&queue->mutex), "mtx_lock failed");
 
-    uint32_t num_jobs = queue->bottom - queue->top;
-    uint32_t i = queue->bottom & (queue->capacity-1);
+    uint64_t num_jobs = queue->bottom - queue->top;
     job_item *job = NULL;
 
     if (num_jobs > 0) {
-        job = queue->jobs[i];
         queue->bottom--;
+        uint32_t i = queue->bottom & (queue->capacity - 1);
+        ASSERT(i < queue->capacity, "job queue overflow %d %d %d", queue->bottom, queue->top, i);
+        job = queue->jobs[i];
     }
 
     CHECK(mtx_unlock(&queue->mutex), "mtx_unlock failed");
@@ -67,11 +61,12 @@ job_item *steal_job(job_queue *queue)
 {
     CHECK(mtx_lock(&queue->mutex), "mtx_lock failed");
 
-    uint32_t num_jobs = queue->bottom - queue->top;
-    uint32_t i = queue->top & (queue->capacity-1);
+    uint64_t num_jobs = queue->bottom - queue->top;
     job_item *job = NULL;
 
     if (num_jobs > 0) {
+        uint32_t i = queue->top & (queue->capacity - 1);
+        ASSERT(i < queue->capacity, "job queue overflow %d %d %d", queue->bottom, queue->top, i);
         job = queue->jobs[i];
         queue->top++;
     }

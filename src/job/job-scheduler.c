@@ -1,9 +1,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "error.h"
 #include "job-scheduler.h"
 #include "job.h"
-#include "macros.h"
 #include "mem.h"
 #include "thread-id.h"
 
@@ -26,11 +26,26 @@ static job_item *find_work(job_scheduler *scheduler)
 
     uint32_t victim_queue = rand() % (scheduler->num_threads + 1);
 
+    ASSERT(victim_queue < scheduler->num_threads + 1, "invalid victim queue %d",victim_queue);
+
     if (victim_queue == glb_queue_id) {
         return NULL;
     }
 
     return steal_job(&scheduler->queues[victim_queue]);
+}
+
+static void close_batch(job_scheduler *scheduler, job_batch *batch)
+{
+    if (atomic_fetch_sub_explicit(&batch->open_batches, 1, memory_order_seq_cst) == 0) {
+        if(batch->parent != NULL){
+            close_batch(scheduler, batch);
+        }
+
+        if(batch->continuation){
+            submit_batch(scheduler, batch->continuation);
+        }
+    }
 }
 
 static void do_work(job_scheduler *scheduler)
@@ -44,12 +59,8 @@ static void do_work(job_scheduler *scheduler)
             work->job_fn(scheduler, work);
         }
 
-        atomic_fetch_sub_explicit(&work->batch->open_jobs, 1, memory_order_relaxed);
-
-        if (work->batch->open_jobs == 0) {
-            for (uint32_t i = 0; i < work->batch->num_continuations; i++) {
-                submit_batch(scheduler, work->batch->continuations[i]);
-            }
+        if (atomic_fetch_sub_explicit(&work->batch->open_jobs, 1, memory_order_seq_cst) == 1) {
+            close_batch(scheduler, work->batch);
         }
     } else {
         thrd_yield();
@@ -65,7 +76,7 @@ static int32_t worker_routine(void *ptr)
     glb_queue_id = args->queue_id;
     set_thrd_id(args->queue_id);
 
-    while (!atomic_load_explicit(&args->scheduler->join_workers, memory_order_relaxed)) {
+    while (!atomic_load_explicit(&args->scheduler->join_workers, memory_order_seq_cst)) {
         do_work(args->scheduler);
     }
 
@@ -78,7 +89,7 @@ void init_scheduler(job_scheduler *scheduler, uint32_t num_threads)
 
     scheduler->num_threads = num_threads;
     scheduler->args = mem_alloc(STATIC_MEM, sizeof(thrd_start_args) * num_threads, 0, "job_scheduler");
-    atomic_store_explicit(&scheduler->join_workers, false, memory_order_relaxed);
+    scheduler->join_workers = false;
 
     for (uint32_t i = 0; i < num_threads + 1; i++) {
         init_job_queue(&scheduler->queues[i], MAX_JOBS_PER_QUEUE);
@@ -101,7 +112,9 @@ void submit_batch(job_scheduler *scheduler, job_batch *batch)
     ASSERT(scheduler, "scheduler is null");
     ASSERT(batch, "batch is null");
 
-    enqueue_jobs(&scheduler->queues[glb_queue_id], batch->jobs, batch->open_jobs);
+    for(uint32_t i = 0; i < batch->capacity; i++){
+        enqueue_job(&scheduler->queues[glb_queue_id], batch->jobs[i]);
+    }
 }
 
 void wait_for_batch(job_scheduler *scheduler, job_batch *batch)
@@ -109,7 +122,7 @@ void wait_for_batch(job_scheduler *scheduler, job_batch *batch)
     ASSERT(scheduler, "scheduler is null");
     ASSERT(batch, "batch is null");
 
-    while (atomic_load_explicit(&batch->open_jobs, memory_order_relaxed) > 0) {
+    while (atomic_load_explicit(&batch->open_batches, memory_order_seq_cst) > 0) {
         do_work(scheduler);
     }
 }
@@ -118,7 +131,7 @@ void join_threads(job_scheduler *scheduler)
 {
     ASSERT(scheduler, "scheduler is null");
 
-    atomic_store_explicit(&scheduler->join_workers, true, memory_order_relaxed);
+    atomic_store_explicit(&scheduler->join_workers, true, memory_order_seq_cst);
 
     scheduler->join_workers = true;
 

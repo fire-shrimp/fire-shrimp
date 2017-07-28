@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "macros.h"
+#include "error.h"
 #include "string-util.h"
 
-bool compare_string(char *string_1, char *string_2)
+bool compare_string(char *str_1, char *str_2)
 {
-    int32_t result = strcmp(string_1, string_2);
+    int32_t result = strcmp(str_1, str_2);
 
     return (result == 0);
 }
@@ -47,7 +47,12 @@ void append_string(char *dest, size_t dest_sz, char *src)
     CHECK(err == 0, "append char buf failed");
 }
 
-bool starts_with(char *string_1, char *string_2, size_t count)
+bool starts_with(char *str_1, char *str_2, size_t count)
 {
-    return (strncmp(string_1, string_2, count) == 0);
+    return (strncmp(str_1, str_2, count) == 0);
+}
+
+size_t length(char *str, size_t count)
+{
+    return strnlen_s( str, count );
 }

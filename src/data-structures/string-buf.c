@@ -19,5 +19,5 @@ string_buf *create_string_buf(enum mem_arena arena, size_t sz)
 
 void destroy_string_buf(string_buf *buf)
 {
-    mem_free(buf->arena, buf, 0, "string_buf");
+    mem_free(buf->arena, buf, "string_buf");
 }

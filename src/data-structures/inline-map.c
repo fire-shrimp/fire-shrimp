@@ -3,8 +3,8 @@
 #include <string.h>
 
 #include "config.h"
+#include "error.h"
 #include "inline-map.h"
-#include "macros.h"
 #include "mem.h"
 #include "murmur-hash-2.h"
 
@@ -209,5 +209,5 @@ void rehash_inline_map(struct inline_map *map, uint32_t capacity)
     map->capacity = capacity;
 
     // delete old memory
-    mem_free(HEAP_MEM, old_mem, 0, "inline_map rehash");
+    mem_free(HEAP_MEM, old_mem, "inline_map rehash");
 }

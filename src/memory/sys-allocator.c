@@ -4,14 +4,14 @@
 
 #include "sys-allocator.h"
 
-static void *mem_alloc(void *instance, size_t sz, size_t align, const char *tag)
+static void *mem_alloc(void *instance, size_t sz, const char *tag)
 {
     void *ptr = malloc(sz);
     memset(ptr, 0, sz);
     return ptr;
 }
 
-static void mem_free(void *instance, void *ptr, size_t align, const char *tag)
+static void mem_free(void *instance, void *ptr, const char *tag)
 {
     free(ptr);
 }
