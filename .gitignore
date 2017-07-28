@@ -12,6 +12,8 @@ build.ningen
 
 build.ninja
 
+*.exe
+
 devenv.bat
 
 *.todo
