@@ -45,7 +45,6 @@ static void boot_engine(command_args *args)
 
     if (args->working_directory != NULL) {
         bool result = set_working_directory(args->working_directory);
-
         CHECK(result, "failed to set working directory to \"%s\"", args->working_directory);
     }
 

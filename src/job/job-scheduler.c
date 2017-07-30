@@ -59,6 +59,7 @@ static void do_work(job_scheduler *scheduler)
             work->job_fn(scheduler, work);
         }
 
+        //last one out, close the door
         if (atomic_fetch_sub_explicit(&work->batch->open_jobs, 1, memory_order_seq_cst) == 1) {
             close_batch(scheduler, work->batch);
         }
@@ -132,8 +133,6 @@ void join_threads(job_scheduler *scheduler)
     ASSERT(scheduler, "scheduler is null");
 
     atomic_store_explicit(&scheduler->join_workers, true, memory_order_seq_cst);
-
-    scheduler->join_workers = true;
 
     for (uint32_t i = 0; i < scheduler->num_threads; i++) {
         uint32_t result = thrd_join(scheduler->threads[i], NULL);

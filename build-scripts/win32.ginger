@@ -1,0 +1,29 @@
+# win32 zero phase ginger build script
+
+#build directory
+-builddir obj
+
+#compiler
+-cc clang-cl
+
+#compiler flags
+-cf -Z7
+-cf -Wall
+-cf -fcolor-diagnostics
+-cf -fansi-escape-codes
+-cf -O0
+-cf -Wno-unused-parameter
+-cf -Wno-unused-variable
+
+#linker
+-ll clang-cl
+
+#linker flags
+-lf -Z7
+
+#build target
+-target bin/zero-phase.exe
+
+
+
+

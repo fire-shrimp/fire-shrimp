@@ -8,8 +8,6 @@ obj/
 
 data/
 
-build.ningen
-
 build.ninja
 
 *.exe
